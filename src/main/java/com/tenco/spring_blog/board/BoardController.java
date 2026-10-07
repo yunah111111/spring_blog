@@ -1,5 +1,7 @@
 package com.tenco.spring_blog.board;
 
+import com.tenco.spring_blog._core.error.Exception403;
+import com.tenco.spring_blog._core.error.Exception404;
 import com.tenco.spring_blog.user.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +42,7 @@ public class BoardController {
 //        Board boardEntity = boardPersistRepository.findByIdWithJPQL(id);
         if (boardEntity == null) {
             // 추후에 404 에러 페이지를 만들어서 처리할 예정
-            throw new RuntimeException("게시글을 찾을 수 없습니다.: " + id);
+            throw new Exception404("게시글을 찾을 수 없습니다.: " + id);
         }
         model.addAttribute("board", boardEntity);
         return "board/detail";
@@ -68,26 +70,20 @@ public class BoardController {
             return "redirect:/login";
         }
         // 2. 유효성 검사
-        try {
-            // 입력 데이터 검증
-            saveDto.validate();
-            // DTO에서 Board 객체 생성
-            Board board = saveDto.toEntity(sessionUser);
-            // Board 저장
-            Board savedBoard = boardPersistRepository.save(board);
-            // 저장 성공시 메인 페이지 이동
-            return "redirect:/";
+        // 입력 데이터 검증
+        saveDto.validate();
+        // DTO에서 Board 객체 생성
+        Board board = saveDto.toEntity(sessionUser);
+        // Board 저장
+        Board savedBoard = boardPersistRepository.save(board);
+        // 저장 성공시 메인 페이지 이동
+        return "redirect:/";
 
-        } catch (Exception e) {
-            // 검증 실패시 메세지와 함께 작성 폼으로 돌아가기 (메세지 생략)
-            log.error(e.getMessage());
-            return "board/save-form";
-        }
     }
 
     // GET - http://localhost:8080/board/1/update (화면 요청)
     @GetMapping({"/board/{id}/update"})
-    public String updateForm(@PathVariable Long id, Model model, HttpSession session, RedirectAttributes rttr) {
+    public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
         // 1. 인증 검사
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
@@ -97,19 +93,12 @@ public class BoardController {
         // 2. 권한 체크를 위한 게시글 조회
         Board board = boardPersistRepository.findById(id);
 
-        try {
-            // 3. 권한 체크: 본인이 작성한 게시글만 수정 가능
-            if (!board.isOwner(sessionUser.getId())) {
-                throw new RuntimeException("수정 권한이 없습니다.");
-            }
-            model.addAttribute("board", board);
-            return "board/update-form";
-        } catch (Exception e) {
-            // 권한이 없음 또는 다른 오류
-            rttr.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/board/" + id;
+        // 3. 권한 체크: 본인이 작성한 게시글만 수정 가능
+        if (!board.isOwner(sessionUser.getId())) {
+            throw new Exception403("수정 권한이 없습니다.");
         }
-
+        model.addAttribute("board", board);
+        return "board/update-form";
     }
 
     // POST - http://localhost:8080/board/1/update (게시글 수정 기능 요청)
@@ -125,31 +114,23 @@ public class BoardController {
         // 2. 권한 검사
         Board boardEntity = boardPersistRepository.findById(id);
 
-        try {
-            if (!boardEntity.isOwner(sessionUser.getId())) {
-                throw new RuntimeException("수정 권한이 없습니다.");
-            }
-
-            // 3. 입력 데이터 검증
-            updateDto.validate();
-
-            // 4. 더티 채킹을 통한 수정 실행
-            boardPersistRepository.updateById(id, updateDto);
-            // PRG
-            // 5. 수정 완료 후 해당 게시글 상세보기로 리다이렉트 처리
-            return "redirect:/board/" + id;
-
-        } catch (Exception e) {
-            model.addAttribute(boardEntity);
-            model.addAttribute("errorMessage", e.getMessage());
-            // 내부에서 뷰 리졸브 활용한 템플릿 파일 찾기
-            return "board/update-form";
+        if (!boardEntity.isOwner(sessionUser.getId())) {
+            throw new Exception403("수정 권한이 없습니다.");
         }
+        // 3. 입력 데이터 검증
+        updateDto.validate();
+
+        // 4. 더티 채킹을 통한 수정 실행
+        boardPersistRepository.updateById(id, updateDto);
+
+        // PRG
+        // 5. 수정 완료 후 해당 게시글 상세보기로 리다이렉트 처리
+        return "redirect:/board/" + id;
     }
 
     // 게시글 삭제
     @PostMapping("/board/{id}/delete")
-    public String delete(@PathVariable Long id, HttpSession session, RedirectAttributes rttr) {
+    public String delete(@PathVariable Long id, HttpSession session, RedirectAttributes rttr) throws Exception403 {
         // 1. 인증 검사 (로그인 여부 확인)
         // 2. 권한 확인 -- 로그인 했지만 내가 작성한 글 인지 여부 확인
         // 2.1 - 관리자 광고성  게시글 .. 삭제도 가능 (권한)
@@ -158,26 +139,16 @@ public class BoardController {
         if (sessionUser == null) {
             return "redirect:/login";
         }
-
-        try {
-            // 2. 삭제할 게시글 조회 (권한 체크를 위해)
-            Board boardEntity = boardPersistRepository.findById(id);
-            // 3. 권한 체크: 본인이 작성한 게시글만 삭제
-            if (!boardEntity.isOwner(sessionUser.getId())) {
-                throw new RuntimeException("삭제 권한이 없습니다.");
-            }
-            // 4. 권한 확인 후 삭제 실행
-            boardPersistRepository.deleteById(id);
-            // 5. 삭제 성공 후 메인 페이지 리다이렉트
-            return "redirect:/";
-
-        } catch (Exception e) {
-            log.error("삭제 실패: {}", e.getMessage());
-            // throw new RuntimeException(e);
-            // 권한 없음 또는 기타 오류
-            rttr.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/board/" + id;
+        // 2. 삭제할 게시글 조회 (권한 체크를 위해)
+        Board boardEntity = boardPersistRepository.findById(id);
+        // 3. 권한 체크: 본인이 작성한 게시글만 삭제
+        if (!boardEntity.isOwner(sessionUser.getId())) {
+            throw new Exception403("삭제 권한이 없습니다.");
         }
+        // 4. 권한 확인 후 삭제 실행
+        boardPersistRepository.deleteById(id);
+        // 5. 삭제 성공 후 메인 페이지 리다이렉트
+        return "redirect:/";
 
     }
 

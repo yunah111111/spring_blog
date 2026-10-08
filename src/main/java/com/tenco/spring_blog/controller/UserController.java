@@ -29,7 +29,7 @@ public class UserController {
 
     // POST http://localhost:8080/join
     @PostMapping("/join")
-    public String join(UserRequest.JoinDto joinDto) {
+    public String join(UserRequest.JoinDto joinDto, Model model) {
         // 1. 유효성 검사
         joinDto.validate();
         // 2. 사용자명 중복 체크
@@ -49,14 +49,13 @@ public class UserController {
     // GET http://localhost:8080/login
     @GetMapping("/login")
     public String loginForm() {
-        // templates/   <-- 콘텐츠 루트 경로
         return "user/login-form";
     }
 
     // POST http://localhost:8080/login
     // 로그인 처리 (예외적으로 POTS 요청)
     @PostMapping("/login")
-    public String login(UserRequest.LoginDto loginDto, HttpSession session) {
+    public String login(UserRequest.LoginDto loginDto, HttpSession session, Model model) {
         // 1. 입력 데이터 검증
         loginDto.validate();
         // 2. 사용자명과 비밀번호로 사용자 조회
@@ -80,11 +79,7 @@ public class UserController {
     // GET http://localhost:8080/user/update
     @GetMapping("/user/update")
     public String updateForm(Model model, HttpSession session) {
-        // 1. 인증 검사
         User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        if (sessionUser == null) {
-            return "redirect:/login";
-        }
         User user = userPersistRepository.findById(sessionUser.getId());
         model.addAttribute("user", user);
         return "user/update-form";
@@ -92,12 +87,9 @@ public class UserController {
 
     // GET http://localhost:8080/user/update
     @PostMapping("/user/update")
-    public String update(UserRequest.UpdateDto updateDto, HttpSession session) {
+    public String update(UserRequest.UpdateDto updateDto, Model model, HttpSession session) {
         // 1. 인증검사
         User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        if (sessionUser == null) {
-            return "redirect:/login";
-        }
         // 2. 권한 검사
         // 다른 사람의 정보는 처음부터 수정할 수 없음(대상이 실제로 있는지만 확인)
         User userEntity = userPersistRepository.findById(sessionUser.getId());

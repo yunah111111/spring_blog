@@ -28,6 +28,7 @@ public class Board {
     // 별도 어노테이션이 없으면 필드명이 컬럼명이 됨.
     private String title;
     private String content;
+    private int viewCount = 0;
     // private String username;
     // N : 1
     // LAZY 전략, EAGER 전략
@@ -43,10 +44,11 @@ public class Board {
 
     // 비즈니스 로직을 위한 생성자 설계
     // id 와 createdAt은 JPA 자동으로 설정하므로 매개변수에서 제외
-    public Board(String title, String content, User user) {
+    public Board(String title, String content, User user, int viewCount) {
         this.title = title;
         this.content = content;
         this.user = user;
+        this.viewCount = viewCount;
     }
 
     // 자신의 상태값을 변경하는 메서드 추가 (영속성 엔티티를 수정하는 메서드)
@@ -71,5 +73,9 @@ public class Board {
     // 시간을 포맷을 메서드를 추가
     public String getTime() {
         return MyDateUtil.timestampFormat(createdAt);
+    }
+
+    public void increaseViewCount() {
+        viewCount++;
     }
 }

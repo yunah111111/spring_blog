@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Board 관련 비즈니스 로직을 처리하는 Service 계층
@@ -47,6 +46,7 @@ public class BoardService {
      * @param id 게시글 PK
      * @return 게시글 정보 (작성자 정보 포함)
      */
+    @Transactional
     public Board findById(Long id) {
         log.info("게시글 상세 조회 서비스 - Id: {}", id);
         // boardJpaRepository.findById(id) <-- 이 메서드 대신 JOIN FETCH를 사용함
@@ -56,6 +56,7 @@ public class BoardService {
                     return new Exception404("게시글을 찾을 수 없습니다.");
                 });
         log.info("게시글 상세 조회 완료 - 제목: {}, 작성자: {}", board.getTitle(), board.getUser().getUsername());
+        board.increaseViewCount();
         return board;
     }
 

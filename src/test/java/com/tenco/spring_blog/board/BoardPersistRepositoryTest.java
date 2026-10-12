@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
-@Import(BoardPersistRepository.class)
+import java.util.Optional;
+
+@Import(BoardJpaRepository.class)
 @DataJpaTest
 public class BoardPersistRepositoryTest {
 
     @Autowired
-    private BoardPersistRepository boardPersistRepository;
+    private BoardJpaRepository boardJpaRepository;
 
 
     @Test
@@ -36,7 +38,7 @@ public class BoardPersistRepositoryTest {
                 .build();
 
         // 3. 게시글 저장
-        Board savedBoard = boardPersistRepository.save(board);
+        Board savedBoard = boardJpaRepository.save(board);
 
         // 4. 저장된 게시글의 id 가져오기
         Long id = savedBoard.getId();
@@ -44,12 +46,12 @@ public class BoardPersistRepositoryTest {
 
         // when
         // 5. 게시글 삭제
-        boardPersistRepository.deleteById(id);
+        boardJpaRepository.deleteById(id);
 
 
         // then
         // 6. 삭제한 게시글 다시 조회
-        Board findBoard = boardPersistRepository.findById(id);
+        Optional<Board> findBoard = boardJpaRepository.findById(id);
 
         // 7. 삭제되었는지 확인
         Assertions.assertThat(findBoard).isNull();
@@ -76,7 +78,7 @@ public class BoardPersistRepositoryTest {
                 .build();
 
         // when
-        Board savedBoard = boardPersistRepository.save(board);
+        Board savedBoard = boardJpaRepository.save(board);
 
         // then
         // 1. 자동 생성된 ID값 확인

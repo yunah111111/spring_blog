@@ -1,4 +1,3 @@
-
 package com.tenco.spring_blog.user;
 
 import org.junit.jupiter.api.DisplayName;
@@ -29,15 +28,15 @@ class UserJpaRepositoryTest {
     @Test
     @DisplayName("사용자 등록 테스트")
     void save_test() {
-        // Given - 테스트에 필요한 데이터 준비
-        User user = createUser("ssar", "ssar@test.com", "1234");
+        // Given
+        User user = createUser("saveUser", "save@test.com", "1234");
 
-        // When - 실제로 테스트할 기능 실행
+        // When
         User savedUser = userJpaRepository.save(user);
 
-        // Then - 실행 결과 검증
+        // Then
         assertThat(savedUser.getId()).isNotNull();
-        assertThat(savedUser.getUsername()).isEqualTo("ssar");
+        assertThat(savedUser.getUsername()).isEqualTo("saveUser");
     }
 
     @Test
@@ -45,7 +44,7 @@ class UserJpaRepositoryTest {
     void findById_test() {
         // Given
         User user = userJpaRepository.save(
-                createUser("ssar", "ssar@test.com", "1234")
+                createUser("findIdUser", "findId@test.com", "1234")
         );
 
         // When
@@ -53,7 +52,7 @@ class UserJpaRepositoryTest {
 
         // Then
         assertThat(result).isPresent();
-        assertThat(result.get().getUsername()).isEqualTo("ssar");
+        assertThat(result.get().getUsername()).isEqualTo("findIdUser");
     }
 
     @Test
@@ -61,17 +60,19 @@ class UserJpaRepositoryTest {
     void findAll_test() {
         // Given
         userJpaRepository.save(
-                createUser("ssar", "ssar@test.com", "1234")
+                createUser("allUser1", "all1@test.com", "1234")
         );
         userJpaRepository.save(
-                createUser("cos", "cos@test.com", "5678")
+                createUser("allUser2", "all2@test.com", "5678")
         );
 
         // When
         List<User> users = userJpaRepository.findAll();
 
         // Then
-        assertThat(users).hasSize(2);
+        assertThat(users)
+                .extracting(User::getUsername)
+                .contains("allUser1", "allUser2");
     }
 
     @Test
@@ -79,16 +80,16 @@ class UserJpaRepositoryTest {
     void findByUsernameAndPassword_test() {
         // Given
         userJpaRepository.save(
-                createUser("ssar", "ssar@test.com", "1234")
+                createUser("loginUser", "login@test.com", "1234")
         );
 
         // When
         Optional<User> result =
-                userJpaRepository.findByUsernameAndPassword("ssar", "1234");
+                userJpaRepository.findByUsernameAndPassword("loginUser", "1234");
 
         // Then
         assertThat(result).isPresent();
-        assertThat(result.get().getUsername()).isEqualTo("ssar");
+        assertThat(result.get().getUsername()).isEqualTo("loginUser");
     }
 
     @Test
@@ -96,15 +97,16 @@ class UserJpaRepositoryTest {
     void findByUsername_test() {
         // Given
         userJpaRepository.save(
-                createUser("ssar", "ssar@test.com", "1234")
+                createUser("usernameUser", "username@test.com", "1234")
         );
 
         // When
-        Optional<User> result = userJpaRepository.findByUsername("ssar");
+        Optional<User> result =
+                userJpaRepository.findByUsername("usernameUser");
 
         // Then
         assertThat(result).isPresent();
-        assertThat(result.get().getUsername()).isEqualTo("ssar");
+        assertThat(result.get().getUsername()).isEqualTo("usernameUser");
     }
 
     @Test
@@ -112,15 +114,16 @@ class UserJpaRepositoryTest {
     void findByEmail_test() {
         // Given
         userJpaRepository.save(
-                createUser("ssar", "ssar@test.com", "1234")
+                createUser("emailUser", "email@test.com", "1234")
         );
 
         // When
-        Optional<User> result = userJpaRepository.findByEmail("ssar@test.com");
+        Optional<User> result =
+                userJpaRepository.findByEmail("email@test.com");
 
         // Then
         assertThat(result).isPresent();
-        assertThat(result.get().getEmail()).isEqualTo("ssar@test.com");
+        assertThat(result.get().getEmail()).isEqualTo("email@test.com");
     }
 
     @Test
@@ -128,7 +131,7 @@ class UserJpaRepositoryTest {
     void deleteById_test() {
         // Given
         User user = userJpaRepository.save(
-                createUser("ssar", "ssar@test.com", "1234")
+                createUser("deleteUser", "delete@test.com", "1234")
         );
         Long id = user.getId();
 
@@ -144,7 +147,7 @@ class UserJpaRepositoryTest {
     void existsById_test() {
         // Given
         User user = userJpaRepository.save(
-                createUser("ssar", "ssar@test.com", "1234")
+                createUser("existsUser", "exists@test.com", "1234")
         );
 
         // When
@@ -158,17 +161,19 @@ class UserJpaRepositoryTest {
     @DisplayName("사용자 데이터 개수 확인 테스트")
     void count_test() {
         // Given
+        long beforeCount = userJpaRepository.count();
+
         userJpaRepository.save(
-                createUser("ssar", "ssar@test.com", "1234")
+                createUser("countUser1", "count1@test.com", "1234")
         );
         userJpaRepository.save(
-                createUser("cos", "cos@test.com", "5678")
+                createUser("countUser2", "count2@test.com", "5678")
         );
 
         // When
-        long count = userJpaRepository.count();
+        long afterCount = userJpaRepository.count();
 
         // Then
-        assertThat(count).isEqualTo(2);
+        assertThat(afterCount - beforeCount).isEqualTo(2);
     }
 }

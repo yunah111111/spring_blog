@@ -1,6 +1,7 @@
 package com.tenco.spring_blog.board;
 
 import com.tenco.spring_blog._core.util.MyDateUtil;
+import lombok.Data;
 
 /**
  * 게시글 응답 DTO
@@ -9,8 +10,10 @@ import com.tenco.spring_blog._core.util.MyDateUtil;
  * - 뷰는 엔티티가 아닌 DTO만 사용하므로 OSIV를 꺼도 지연 로디 오류가 나지 않는다.
  * - 화면에 필요한 값만 담으므로 계층간의 결합도도 낮아진다.
  */
+
 public class BoardResponse {
 
+    @Data
     public static class ListDto {
         private Long id;
         private String title;
@@ -29,6 +32,7 @@ public class BoardResponse {
     }
 
     // 게시글 상세 응답 DTO
+    @Data
     public static class DetailDto {
         private Long id;
         private String title;
@@ -53,6 +57,7 @@ public class BoardResponse {
     }
 
     // 게시물 수정 화면 응답 DTO
+    @Data
     public static class UpdateFormDto {
         private Long id;
         private String title;

@@ -28,13 +28,12 @@ public class Board {
     // 별도 어노테이션이 없으면 필드명이 컬럼명이 됨.
     private String title;
     private String content;
-    private int viewCount = 0;
     // private String username;
     // N : 1
     // LAZY 전략, EAGER 전략
     // LAZY 전략: 게시글을 조회할 때 사용자는 바로 조회하지 않고, 실제로 사용할 때, 그때 한번 더 조회
     // EAGER 전략: Board 가져올 때 User도 같이 가져오라는 뜻
-    @ManyToOne(fetch = FetchType.EAGER) // 일단 Board만 가져오고 User는 나중에 필요할 때 가져오라는 뜻
+    @ManyToOne(fetch = FetchType.LAZY) // 일단 Board만 가져오고 User는 나중에 필요할 때 가져오라는 뜻
     @JoinColumn(name = "user_id") // board_tb에 만들어질 외래키 컬럼 이름 설정
     private User user;
 
@@ -44,11 +43,10 @@ public class Board {
 
     // 비즈니스 로직을 위한 생성자 설계
     // id 와 createdAt은 JPA 자동으로 설정하므로 매개변수에서 제외
-    public Board(String title, String content, User user, int viewCount) {
+    public Board(String title, String content, User user) {
         this.title = title;
         this.content = content;
         this.user = user;
-        this.viewCount = viewCount;
     }
 
     // 자신의 상태값을 변경하는 메서드 추가 (영속성 엔티티를 수정하는 메서드)
@@ -73,9 +71,5 @@ public class Board {
     // 시간을 포맷을 메서드를 추가
     public String getTime() {
         return MyDateUtil.timestampFormat(createdAt);
-    }
-
-    public void increaseViewCount() {
-        viewCount++;
     }
 }

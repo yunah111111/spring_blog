@@ -1,6 +1,5 @@
 package com.tenco.spring_blog._core.error;
 
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -54,8 +53,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception403.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.FORBIDDEN) // 상태코드 403 지정 (없으면 200으로 나감)
-    public String ex403(Exception403 e, HttpServletRequest request, Model model) {
-        log.warn("==== 403 Not Found 에러 발생 ====");
+    public String ex403(Exception403 e, HttpServletRequest request) {
+        log.warn("==== 403 Forbidden 에러 발생 ====");
         log.warn("요청 URL: {}", request.getRequestURL());
         log.warn("권한 오류: {}", e.getMessage());
         log.warn("예외 클래스: {}", e.getClass().getSimpleName());

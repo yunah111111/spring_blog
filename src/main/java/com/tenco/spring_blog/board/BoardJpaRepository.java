@@ -12,8 +12,10 @@ public interface BoardJpaRepository extends JpaRepository<Board, Long> {
     /**
      * 1. 등록 및 수정: save(Board entity);
      *      - 엔티티를 DB에 저장한다. ID가 없으면 INSERT, 있으면 UPDATE를 자동으로 실행함
+     *
      * 2. 단건 조회: findById(Long id)
      *      - ID로 엔티티를 조회하면 Optional<Board> 타입을 반환한다.
+     *
      * 3. 전체 조회: findAll();
      *      - 테이블의 모든 데이터를 조회하며 List<Board>로 반환됨
      *

@@ -42,11 +42,10 @@ public class UserController {
     // POST http://localhost:8080/login
     // 로그인 처리 (예외적으로 POTS 요청)
     @PostMapping("/login")
-    public String login(UserRequest.LoginDto loginDto, HttpSession session, Model model) {
+    public String login(UserRequest.LoginDto loginDto, HttpSession session) {
         loginDto.validate();
-        User user = userService.login(loginDto);
-        user.setPassword(null);
-        session.setAttribute(Define.SESSION_USER, user);
+        SessionUserDto sessionUserDto = userService.login(loginDto);
+        session.setAttribute(Define.SESSION_USER, sessionUserDto);
         return "redirect:/";
     }
 
@@ -54,20 +53,19 @@ public class UserController {
     // GET http://localhost:8080/user/update
     @GetMapping("/user/update")
     public String updateForm(Model model, HttpSession session) {
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        User user = userService.findById(sessionUser.getId());
-        model.addAttribute("user", user);
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        UserResponse.updateFormDto updateFormDto = userService.findUpdateForm(sessionUserDto.getId());
+        model.addAttribute("user", updateFormDto);
         return "user/update-form";
     }
 
-    // GET http://localhost:8080/user/update
+    // POST http://localhost:8080/user/update
     @PostMapping("/user/update")
-    public String update(UserRequest.UpdateDto updateDto, Model model, HttpSession session) {
+    public String update(UserRequest.UpdateDto updateDto, HttpSession session) {
         updateDto.validate();
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        User updateUser = userService.updateById(sessionUser.getId(), updateDto);
-        updateUser.setPassword(null);
-        session.setAttribute(Define.SESSION_USER, updateUser);
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        SessionUserDto updateSessionUserDto = userService.updateById(sessionUserDto.getId(), updateDto);
+        session.setAttribute(Define.SESSION_USER, updateSessionUserDto);
         return "redirect:/";
     }
 

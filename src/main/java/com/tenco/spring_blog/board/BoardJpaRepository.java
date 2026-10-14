@@ -1,6 +1,7 @@
 package com.tenco.spring_blog.board;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -38,4 +39,10 @@ public interface BoardJpaRepository extends JpaRepository<Board, Long> {
 
     @Query("SELECT b FROM Board b JOIN FETCH b.user u ORDER BY b.id DESC")
     List<Board> findAllJoinUser();
+
+    // 주의 @Query는 기본적으로 조회(SELECT)로 실행이 된다. DELETE, UPDATE를 직접 쓸 대 반드시 @Modifying 사용
+    // 게시글에 달린 댓글 일괄 삭제 (게시글 삭제 전에 사용 예정)
+    @Modifying
+    @Query("delete from Reply r where r.board.id = :boardId")
+    void deleteBoardId(@Param("boardId") Long boardId);
 }

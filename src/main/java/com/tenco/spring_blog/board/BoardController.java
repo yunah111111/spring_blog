@@ -46,7 +46,7 @@ public class BoardController {
 
     // GET http://localhost:8080/board/save (화면 요청)
     @GetMapping("/board/save")
-    public String saveForm(HttpSession session) {
+    public String saveForm() {
         return "board/save-form";
     }
 

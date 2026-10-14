@@ -4,6 +4,7 @@ import com.tenco.spring_blog._core.util.Define;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -41,6 +42,23 @@ public class GlobalExceptionHandler {
 
         rttr.addFlashAttribute("errorMessage", e.getMessage());
         return "redirect:/login";
+    }
+
+    @ExceptionHandler(UnAuthorizedException.class)
+    @ResponseBody
+    public String exUnauthorized(UnAuthorizedException e, HttpServletRequest request) {
+        log.warn("==== 401(Data 반환) Unauthorized 에러 발생 ====");
+        log.warn("요청 URL: {}", request.getRequestURL());
+        log.warn("인증 오류: {}", e.getMessage());
+        log.warn("예외 클래스: {}", e.getClass().getSimpleName());
+
+        String msg = e.getMessage().replace("'", "\\'"); // 따옴표 깨짐 방지
+        return """
+                <script>
+                    alert('%s');
+                    location.href = '/login'
+                </script>
+                """.formatted(msg);
     }
 
 //    @ExceptionHandler(Exception403.class)
@@ -107,6 +125,19 @@ public class GlobalExceptionHandler {
         log.info("에러 타입: {}", e.getClass().getSimpleName());
         log.info("에러 메세지: {}", e.getMessage());
         log.info("스택 트레이스: ", e); // 전체 스택 트레이스 포함
+
+        model.addAttribute("msg", "시스템 오류 발생. 관리자에게 문의해주세요");
+        return "err/500";
+    }
+
+    // 데이터베이스 제약 조건 위반(외래키, unique 중복 등)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT) // 409: 현재 데이터 상태와 충돌
+    public String exDataIntegrityViolationException(DataIntegrityViolationException e, HttpServletRequest request, Model model) {
+        log.warn("==== 예상치 못한 런타임 에러 발생 ====");
+        log.info("요청 URL: {}", request.getRequestURL());
+        // 상세 원인(SQL, 제약조건 이름)은 개발자용 로그에만 남김
+        log.error("원인: {}", e.getMostSpecificCause().getMessage());
 
         model.addAttribute("msg", "시스템 오류 발생. 관리자에게 문의해주세요");
         return "err/500";

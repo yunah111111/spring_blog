@@ -46,6 +46,7 @@ public class ReplyService {
         replyJpaRepository.save(saveDto.toEntity(board, user));
     }
 
+
     // 댓글 삭제
     @Transactional
     public void deleteById(Long replyId, SessionUserDto sessionUserDto) {
@@ -54,7 +55,7 @@ public class ReplyService {
                 .orElseThrow(() -> new Exception404("댓글을 찾을 수 없습니다."));
 
         // 2. 권한 확인: 작성자 본인만 삭제 가능
-        if (reply.isOwner(sessionUserDto.getId())) {
+        if (!reply.isOwner(sessionUserDto.getId())) {
             throw new Exception403("본인이 작성한 댓글만 삭제할 수 있습니다.");
         }
         // 3. 삭제

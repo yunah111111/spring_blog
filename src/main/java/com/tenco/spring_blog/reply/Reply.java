@@ -41,7 +41,7 @@ public class Reply {
     // 단방향 N : 1 - 외래키 board_id를 가짐
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
-    private Board board;
+    Board board;
 
 
     // 편의 메서드 - 댓글 작성자 본인인지 확인

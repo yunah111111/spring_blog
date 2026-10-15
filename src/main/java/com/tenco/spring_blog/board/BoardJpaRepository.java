@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface BoardJpaRepository extends JpaRepository<Board, Long> {
@@ -43,4 +42,17 @@ public interface BoardJpaRepository extends JpaRepository<Board, Long> {
     @Query(value = "SELECT b FROM Board b JOIN FETCH b.user u",
             countQuery = "SELECT COUNT(b) FROM Board b")
     Page<Board> findAllJoinUser(Pageable pageable);
+
+    // 게시글 검색 + 페이징 조회 (작성자 함께 조인해서 조회)
+    // 정렬은 Pageable에 담아서 전달하므로 쿼리에 ORDER BY를 쓰지 않음
+    @Query(value = """
+                    select b from Board b join fetch b.user
+                    where b.title like concat('%', :keyword, '%')
+                    or b.content like concat('%', :keyword, '%')""",
+            countQuery = """
+                    SELECT COUNT(b) FROM Board b
+                    where b.title like concat('%', :keyword, '%')
+                    or b.content like concat('%', :keyword, '%')
+                    """)
+    Page<Board> findAllKeywordJoinUser(Pageable pageable, @Param("keyword") String keyword);
 }

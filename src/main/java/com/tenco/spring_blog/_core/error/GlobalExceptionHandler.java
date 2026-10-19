@@ -61,6 +61,7 @@ public class GlobalExceptionHandler {
                 """.formatted(msg);
     }
 
+
 //    @ExceptionHandler(Exception403.class)
 //    public String ex403(Exception403 e, HttpServletRequest request, Model model) {
 //        log.warn("==== 403 Not Found 에러 발생 ====");
@@ -90,6 +91,7 @@ public class GlobalExceptionHandler {
                 </script>
                 """.formatted(msg);
     }
+
 
     @ExceptionHandler(Exception404.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

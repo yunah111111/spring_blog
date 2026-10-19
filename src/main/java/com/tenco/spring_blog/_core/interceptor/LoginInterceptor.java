@@ -1,10 +1,8 @@
 package com.tenco.spring_blog._core.interceptor;
 
-import com.tenco.spring_blog._core.error.Exception401;
 import com.tenco.spring_blog._core.error.UnAuthorizedException;
 import com.tenco.spring_blog._core.util.Define;
 import com.tenco.spring_blog.user.SessionUserDto;
-import com.tenco.spring_blog.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;

@@ -16,9 +16,7 @@ public class AdminController {
     public String dashboard(Model model, HttpSession session) {
         SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
         model.addAttribute("adminName", sessionUserDto.getUsername());
-        if (!sessionUserDto.isAdmin()) {
-            throw new Exception403("권한이 없습니다.");
-        }
+
         return "admin/dashboard";
     }
 }

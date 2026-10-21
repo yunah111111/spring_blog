@@ -30,6 +30,15 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
      */
 
     // 사용자명과 비밀번호로 조회 (로그인용)
+    // 비밀번호는 해시로 저장되어 있어 DB에서 비교할 수 없으므로 조건에 넣지 않아야 한다.
+    @Query("""
+        SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles 
+            WHERE u.username = :username
+    """)
+    Optional<User> findByUsernameWithRoles(@Param("username") String username);
+
+
+    // 사용자명과 비밀번호로 조회 (로그인용)
     @Query("""
         SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles 
             WHERE u.username = :username AND u.password = :password

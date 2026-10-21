@@ -5,20 +5,20 @@
 -- insert into board_tb(title, content, username, created_at) values('네 번째 글', '머스태치로 화면을 그립니다.', '이서연', now());
 
 -- 1. 사용자 (외래키가 가리킬 대상이므로 먼저 넣습니다)
--- 비밀번호는 지금은 연습용 평문입니다. 암호화는 나중에 적용합니다
-INSERT INTO user_tb (username, password, email, created_at) VALUES ('admin',   '1234', 'admin@tenco.com',   NOW());
-INSERT INTO user_tb (username, password, email, created_at) VALUES ('minsu',   '1234', 'minsu@tenco.com',   NOW());
-INSERT INTO user_tb (username, password, email, created_at) VALUES ('jihun',   '1234', 'jihun@tenco.com',   NOW());
-INSERT INTO user_tb (username, password, email, created_at) VALUES ('seoyeon', '1234', 'seoyeon@tenco.com', NOW());
+-- 비밀번호는 모두 "1234"를 BCrypt 로 해싱한 값입니다
+INSERT INTO user_tb (username, password, email, created_at) VALUES ('admin',   '$2a$10$jiByiZruBRyjQuhMgF6kY.Hg2NTqKV2YqmbiGoUYn/HthKtJrkoca', 'admin@tenco.com',   NOW());
+INSERT INTO user_tb (username, password, email, created_at) VALUES ('minsu',   '$2a$10$jiByiZruBRyjQuhMgF6kY.Hg2NTqKV2YqmbiGoUYn/HthKtJrkoca', 'minsu@tenco.com',   NOW());
+INSERT INTO user_tb (username, password, email, created_at) VALUES ('jihun',   '$2a$10$jiByiZruBRyjQuhMgF6kY.Hg2NTqKV2YqmbiGoUYn/HthKtJrkoca', 'jihun@tenco.com',   NOW());
+INSERT INTO user_tb (username, password, email, created_at) VALUES ('seoyeon', '$2a$10$jiByiZruBRyjQuhMgF6kY.Hg2NTqKV2YqmbiGoUYn/HthKtJrkoca', 'seoyeon@tenco.com', NOW());
 
--- 1-1. 사용자 역할 (admin 은 관리자이면서 일반 사용자)
+-- 1-1. 사용자 역할 (admin은 관리자이면서 일반 사용자)
 INSERT INTO user_role_tb (user_id, role) VALUES (1, 'ADMIN');
 INSERT INTO user_role_tb (user_id, role) VALUES (1, 'USER');
 INSERT INTO user_role_tb (user_id, role) VALUES (2, 'USER');
 INSERT INTO user_role_tb (user_id, role) VALUES (3, 'USER');
 INSERT INTO user_role_tb (user_id, role) VALUES (4, 'USER');
 
--- 2. 게시글 (user_id 는 위 사용자의 id)
+-- 2. 게시글 (user_id는 위 사용자의 id)
 -- admin(1)
 INSERT INTO board_tb (title, content, user_id, created_at) VALUES ('블로그 개설을 환영합니다', '새 블로그가 문을 열었습니다. 많은 참여 부탁드립니다.', 1, NOW());
 INSERT INTO board_tb (title, content, user_id, created_at) VALUES ('이용 수칙 안내', '서로 존중하는 소통 문화를 함께 만들어 가요.', 1, NOW());
@@ -32,7 +32,7 @@ INSERT INTO board_tb (title, content, user_id, created_at) VALUES ('신입 개�
 -- seoyeon(4)
 INSERT INTO board_tb (title, content, user_id, created_at) VALUES ('첫 번째 게시글입니다', '블로그에 처음 글을 올려 봅니다. 자주 소통해요.', 4, NOW());
 
--- 3. 댓글 (board_id 는 게시글 id, user_id 는 작성자 id)
+-- 3. 댓글 (board_id는 게시글 id, user_id 는 작성자 id)
 -- 1번 게시글 : 블로그 개설을 환영합니다 (admin)
 INSERT INTO reply_tb (comment, board_id, user_id, created_at) VALUES ('축하드립니다! 자주 방문할게요.', 1, 2, NOW());
 INSERT INTO reply_tb (comment, board_id, user_id, created_at) VALUES ('좋은 글 많이 올라오면 좋겠네요.', 1, 3, NOW());

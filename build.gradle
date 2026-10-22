@@ -19,13 +19,11 @@ repositories {
 }
 
 dependencies {
-
-    dependencies {
-        // 비밀번호 해싱 (BCryptPasswordEncoder)
-        implementation 'org.springframework.security:spring-security-crypto'
-
-        // ... 기존 의존성 그대로
-    }
+// 메일 발송 (JavaMailSender)
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    // 비밀번호 해싱 (BCryptPasswordEncoder)
+    implementation 'org.springframework.security:spring-security-crypto'
+    // ... 기존 의존성 그대로
     // Source: https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.18.0'
 

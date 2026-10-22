@@ -1,6 +1,8 @@
 package com.tenco.spring_blog.user;
 
 import com.tenco.spring_blog._core.error.Exception400;
+import com.tenco.spring_blog._core.util.Define;
+import jakarta.servlet.http.HttpSession;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -66,6 +68,7 @@ public class UserRequest {
         private String password;
         private String email;
         private MultipartFile profileImage; // 프로필 이미지 (선택 사항)
+
 
         // 회원가입시 데이터 검증 메서드
         public void validate() {

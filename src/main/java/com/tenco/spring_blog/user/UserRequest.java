@@ -32,6 +32,27 @@ public class UserRequest {
         }
     }
 
+    // 전화번호 인증 요청 DTO (발송, 확인 API에서 함께 사용)
+    @Data
+    public static class SmsCheckDto {
+        private String num; // 전화번호 (1번째 요청 시 사용)
+        private String code; // 인증번호 (2번째 요청 시 사용)
+
+        public void validate() {
+            if (num == null || num.trim().isEmpty()) {
+                throw new Exception400("전화번호를 입력해주세요");
+            }
+        }
+
+        // 인증번호 확인 API에서 추가로 호출할 예정
+        public void validateCode() {
+            validate();
+            if (code == null || code.trim().isEmpty()) {
+                throw new Exception400("인증번호를 입력해주세요");
+            }
+        }
+    }
+
     // 회원정보 수정용 DTO
     @Data
     public static class UpdateDto {

@@ -1,21 +1,15 @@
 package com.tenco.spring_blog.user;
 
-import com.tenco.spring_blog._core.error.UnAuthorizedException;
+import com.tenco.spring_blog._core.error.Exception400;
 import com.tenco.spring_blog._core.util.Define;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor // DI
 @Slf4j
@@ -122,6 +116,25 @@ public class UserController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    // GET http://localhost:8080/user/number
+    @GetMapping("/user/number")
+    public String number() {
+        return "user/number";
+    }
+
+    // POST http://localhost:8080/user/number
+    @PostMapping("/user/number")
+    public String number(UserRequest.SmsCheckDto smsCheckDto, HttpSession session) {
+        // 1. 유효성 검사
+        smsCheckDto.validate();
+        // 이메일 인증 완료된 값 꺼내오기 (세션에 저장된 상태)
+//        String verifiedNum = (String) session.getAttribute(Define.VERIFIED_NUM);
+
+        // 가입 완료 후 임시 저장해둔 세션에 전화번호 정보 제거
+        session.removeAttribute(Define.VERIFIED_NUM);
+        return "redirect:/user/detail";
     }
 
 }

@@ -53,6 +53,10 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.email = :email")
     Optional<User> findByEmail(@Param("email") String email);
 
+    // 전화번호 중복 체크용
+    @Query("select u from User u where u.num = :num")
+    Optional<User> findByNum(@Param("num") String num);
+
 
     // 사용자 정보 업데이트는 JPA의 더티 체킹 활용
 }

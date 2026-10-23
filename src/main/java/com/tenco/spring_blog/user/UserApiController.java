@@ -2,6 +2,7 @@ package com.tenco.spring_blog.user;
 
 import com.tenco.spring_blog._core.error.Exception400;
 import com.tenco.spring_blog._core.util.Define;
+import com.tenco.spring_blog.sms.SmsService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class UserApiController {
 
     private final MailService mailService;
     private final UserService userService;
+    private final SmsService smsService;
 
 
     // POST /api/email/send
@@ -46,6 +48,35 @@ public class UserApiController {
 
         emailCheckDto.validateCode();
         boolean verified = mailService.verifyCode(emailCheckDto.getEmail(), emailCheckDto.getCode(), session);
+        if (!verified) {
+            return ResponseEntity.badRequest().body(Map.of("message", "인증번호가 일치하지 않습니다."));
+        }
+        return ResponseEntity.ok().body(Map.of("message", "인증되었습니다."));
+    }
+
+    // POST /api/num/send
+    // 요청 바디: {"num": "010-8888-8888"}
+    @PostMapping("/api/num/send")
+    public ResponseEntity<?> sendCode2(@RequestBody UserRequest.SmsCheckDto smsCheckDto, HttpSession session) {
+
+        smsCheckDto.validate();
+        userService.checkSmsAvailable(smsCheckDto.getNum());
+        // 아미 가입된 전화번호 있으면 400 던져야함
+
+        // SMTP를 사용해서 인증번호 발송 (구글 메일 서버) -> 사용자 이메일 수신함 (인증번호)
+        smsService.sendVerificationCode(smsCheckDto.getNum(), session);
+
+        return ResponseEntity.ok(Map.of("message", "인증번호가 발송되었습니다." + Define.CODE_EXPIRE_MINUTES + "분 안에 입력하세요"));
+    }
+
+    // POST /api/num/verify
+    // 요청 바디 {"num": "010-8888-8888", "code" : "123456"}
+    @PostMapping("/api/num/verify")
+    public ResponseEntity<?> verifyCode2(@RequestBody UserRequest.SmsCheckDto smsCheckDto,
+                                        HttpSession session) {
+
+        smsCheckDto.validateCode();
+        boolean verified = smsService.verifyCode(smsCheckDto.getNum(), smsCheckDto.getCode(), session);
         if (!verified) {
             return ResponseEntity.badRequest().body(Map.of("message", "인증번호가 일치하지 않습니다."));
         }

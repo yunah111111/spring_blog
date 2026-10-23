@@ -8,5 +8,8 @@ public class Define {
     public static final String VERIFIED_EMAIL = "verifiedEmail"; // 인증을 마친 이메일 주소
     public static final int CODE_EXPIRE_MINUTES = 5; // 인증 번호 유효 시간 5분
 
+    // 전화번호 인증 (추가)
+    public static final String NUM_CODE_PREFIX = "numCode_";   // 뒤에 전화번호 붙여 사용 : emailCode_aaa@naver.com
+    public static final String VERIFIED_NUM = "verifiedNum";   // 인증을 마친 전화번호
 
 }

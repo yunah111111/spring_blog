@@ -204,4 +204,12 @@ public class UserService {
                     throw new Exception400("이미 등록된 이메일입니다.");
                 });
     }
+
+    // 전화번호 사용 가능 여부 (인증번호 발송 전)
+    public void checkSmsAvailable(String num) {
+        userJpaRepository.findByNum(num)
+                .ifPresent(user -> {
+                    throw new Exception400("이미 등록된 전화번호입니다.");
+                });
+    }
 }

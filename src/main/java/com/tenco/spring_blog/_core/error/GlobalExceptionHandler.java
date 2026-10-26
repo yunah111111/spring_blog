@@ -92,6 +92,23 @@ public class GlobalExceptionHandler {
                 """.formatted(msg);
     }
 
+    @ExceptionHandler(NotEnoughPointException.class)
+    @ResponseBody
+    public String ex403(NotEnoughPointException e, HttpServletRequest request) {
+        log.warn("==== NotEnoughPointException 에러 발생 ====");
+        log.warn("요청 URL: {}", request.getRequestURL());
+        log.warn("권한 오류: {}", e.getMessage());
+        log.warn("예외 클래스: {}", e.getClass().getSimpleName());
+
+        String msg = e.getMessage().replace("'", "\\'"); // 따옴표 깨짐 방지
+        return """
+                <script>
+                    alert('%s');
+                    history.back();
+                </script>
+                """.formatted(msg);
+    }
+
 
     @ExceptionHandler(Exception404.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

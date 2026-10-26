@@ -2,6 +2,7 @@ package com.tenco.spring_blog.board;
 
 import com.tenco.spring_blog._core.error.Exception403;
 import com.tenco.spring_blog._core.error.Exception404;
+import com.tenco.spring_blog.purchase.PurchaseJpaRepository;
 import com.tenco.spring_blog.reply.ReplyJpaRepository;
 import com.tenco.spring_blog.user.SessionUserDto;
 import com.tenco.spring_blog.user.User;
@@ -14,9 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Board 관련 비즈니스 로직을 처리하는 Service 계층
@@ -32,6 +30,7 @@ public class BoardService {
     private final BoardJpaRepository boardJpaRepository;
     private final UserJpaRepository userJpaRepository;
     private final ReplyJpaRepository replyJpaRepository;
+    private final PurchaseJpaRepository purchaseJpaRepository;
 
     /**
      * 게시글 저장
@@ -44,7 +43,7 @@ public class BoardService {
     public Board save(BoardRequest.SaveDto saveDto, SessionUserDto sessionUser) {
         // saveDto - 사용자가 게시글 작성 화면에서 입력한 데이터
         // sessionUser - 현재 로그인한 사람
-        log.info("게시글 저장 서비스 - 제목: {}, 작성자: {}", saveDto.getTitle(), sessionUser.getUsername());
+        log.info("게시글 저장 시작 - 제목: {}, 작성자: {}", saveDto.getTitle(), sessionUser.getUsername());
         User user = userJpaRepository.getReferenceById(sessionUser.getId());
         Board savedBoard = boardJpaRepository.save(saveDto.toEntity(user));
         log.info("게시글 저장 완료 - ID: {}, 제목: {}", savedBoard.getId(), savedBoard.getTitle());
@@ -57,12 +56,21 @@ public class BoardService {
      * @return 게시글 정보 (작성자 정보 포함)
      */
     @Transactional
-    public BoardResponse.DetailDto findById(Long id) {
+    public BoardResponse.DetailDto findById(Long id, Long sessionUserId) {
         log.info("게시글 상세 조회 서비스 - Id: {}", id);
         Board board = boardJpaRepository.findByIdJoinUser(id)
                         .orElseThrow(() -> new Exception404("게시글을 찾을 수 없습니다."));
         log.info("게시글 상세 조회 완료 - 제목: {}, 작성자: {}", board.getTitle(), board.getUser().getUsername());
-        return new BoardResponse.DetailDto(board);
+
+        // 로그인하지 않았으면 작성자도, 구매자도 아님
+        boolean owner = sessionUserId != null && board.isOwner(sessionUserId);
+        // 로그인 했고, 구매이력 테이블에 내가 존재한다. (boardId, userId)
+
+        boolean purchased = sessionUserId != null
+                && purchaseJpaRepository.existsByUserIdAndBoardId(sessionUserId, id);
+
+
+        return new BoardResponse.DetailDto(board, owner, purchased);
     }
 
     /**
